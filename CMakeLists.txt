@@ -29,3 +29,6 @@ target_include_directories(
 
 # add the executable
 add_subdirectory(examples)
+
+enable_testing()
+add_subdirectory(test)
