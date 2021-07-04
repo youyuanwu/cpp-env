@@ -2,9 +2,9 @@ cmake_minimum_required(VERSION 3.14)
 
 project(refl-cpp-examples CXX)
 
-if(refl-cpp_EXAMPLES_USE_INSTALLED)
-  find_package(refl-cpp REQUIRED)
-endif()
+# if(refl-cpp_EXAMPLES_USE_INSTALLED)
+#   find_package(refl-cpp REQUIRED)
+# endif()
 
 set(
     examples

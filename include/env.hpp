@@ -3,6 +3,8 @@
 #include <charconv> // number parsing
 #include "refl.hpp"
 
+namespace env {
+
 std::string getEnv( std::string const & key , bool & exist)
 {
     char * val = std::getenv( key.c_str() );
@@ -69,3 +71,5 @@ void Parse(T&& value)
         }
     });
 }
+
+} // namespace

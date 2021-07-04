@@ -11,7 +11,9 @@ FetchContent_MakeAvailable(googletest)
 
 project(env-cpp-tests CXX)
 
-# Now simply link against gtest or gtest_main as needed. Eg
-add_executable(env-cpp-test example.cpp)
-target_link_libraries(env-cpp-test gtest_main)
+add_executable(env-cpp-test parse_test.cpp)
+
+target_link_libraries(env-cpp-test PRIVATE gtest_main env-cpp::env-cpp refl-cpp)
+target_compile_features(env-cpp-test PRIVATE cxx_std_17)
+
 add_test(NAME all_tests COMMAND env-cpp-test)
