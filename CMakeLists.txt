@@ -1,9 +1,9 @@
-cmake_minimum_required(VERSION 3.11)
+cmake_minimum_required(VERSION 3.14)
 
 set (CMAKE_CXX_STANDARD 17)
 
 # set the project name
-project(cpp-env)
+project(env-cpp)
 
 
 
@@ -17,10 +17,15 @@ FetchContent_Declare(
 # set(protobuf_BUILD_TESTS OFF)
 FetchContent_MakeAvailable(refl-cpp)
 
+add_library(env-cpp INTERFACE)
+add_library(env-cpp::env-cpp ALIAS env-cpp)
+
+target_include_directories(
+    env-cpp
+    ${env-cpp_warning_guard}
+    INTERFACE
+    "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>"
+)
 
 # add the executable
-add_executable(main main.cpp)
-target_link_libraries(main  refl-cpp)
-
-add_executable(example example.cpp)
-target_link_libraries(example  refl-cpp)
+add_subdirectory(examples)
