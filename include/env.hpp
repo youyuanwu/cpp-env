@@ -1,6 +1,6 @@
 #include <iostream>
 #include <cstdlib>
-#include <charconv> // number parsing
+#include <string>
 #include "refl.hpp"
 
 namespace env {
@@ -16,23 +16,8 @@ std::string getEnv( std::string const & key , bool & exist)
     return std::string(val);
 }
 
-template<typename T>
-T toType(std::string &s) {
-    T value{};
-
-    //if constexpr (std::is_integral_v<T> || std::is_floating_point_v<T>) {
-        // numbers 
-    auto [ptr, error] = std::from_chars(s.data(), s.data() + s.size(), value);
-
-    if (error != std::errc{}) {
-        // error with the conversion
-        throw new std::invalid_argument("value invalid: " + s);
-    } else {
-        // conversion successful, do stuff with value
-    }
-
-    return value;
-}
+// static assert for constexpr
+template<bool flag = false> void static_type_not_supported() { static_assert(flag, "type in user struct is not supported"); }
 
 struct serializable : refl::attr::usage::field
 {
@@ -56,18 +41,22 @@ void Parse(T&& value)
             std::cout << "val:" << val << '\n';
             std::cout << "exist:" << exist << '\n';
 
-            // member can be numeric type
-            //auto x = member.value_type;
-            if constexpr (std::is_integral_v<std::remove_reference_t<decltype(member(value))>> || std::is_floating_point_v<std::remove_reference_t<decltype(member(value))>>) {
-                    member(value) = toType<std::remove_reference_t<decltype(member(value))>>(val);
-            }else if constexpr (std::is_same<std::remove_reference_t<decltype(member(value))>, std::remove_reference_t<decltype(val)>>::value){
-                    member(value) = val;
-            }else{
-                std::cout << "mismatch " << fieldName << '\n'<<'\n';
-                //std::cout << decltype(member(value)) << "--" << decltype(val) << '\n';
+            if constexpr (std::is_same<std::remove_reference_t<decltype(member(value))>, std::string>::value){
+                // env is the same that we read
+                member(value) = val;
+            } else if constexpr (std::is_same<std::remove_reference_t<decltype(member(value))>, int>::value){
+                member(value) = std::stoi(val);
+            } else if constexpr (std::is_same<std::remove_reference_t<decltype(member(value))>, long>::value){
+                member(value) = std::stol(val);
+            } else if constexpr (std::is_same<std::remove_reference_t<decltype(member(value))>, long long>::value){
+                member(value) = std::stoll(val);
+            } else if constexpr (std::is_same<std::remove_reference_t<decltype(member(value))>, float>::value){
+                member(value) = std::stof(val);
+            } else if constexpr (true){
+                // If compiler error out on this line it means that user struct field type is not supported
+                static_type_not_supported();
             }
-            
-            //member(value) = toType(val)
+
         }
     });
 }

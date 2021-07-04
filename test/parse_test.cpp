@@ -7,7 +7,8 @@ struct Env
     std::string EnvCPPName;
     std::string EnvCPPAddress;
     int EnvCPPAge;
-//    float EnvCPPEnergy;
+    long EnvCPPHeight;
+    float EnvCPPEnergy;
 };
 
 // This needs to be in global namespace
@@ -15,7 +16,8 @@ REFL_TYPE(Env, bases<>)
     REFL_FIELD(EnvCPPName, env::serializable())
     REFL_FIELD(EnvCPPAddress, env::serializable())
     REFL_FIELD(EnvCPPAge, env::serializable())
-//    REFL_FIELD(EnvCPPEnergy, env::serializable())
+    REFL_FIELD(EnvCPPHeight, env::serializable())
+    REFL_FIELD(EnvCPPEnergy, env::serializable())
 REFL_END
 
 namespace mytest{
@@ -40,22 +42,23 @@ TEST(ParseTest, Ok) {
     ret = setEnv("EnvCPPAge","10");
     EXPECT_EQ(ret, true);
 
+    long EnvCPPHeight = 20;
+    ret = setEnv("EnvCPPHeight","20");
+    EXPECT_EQ(ret, true);
+
     float EnvCPPEnergy = 10.1;
-    ret = setEnv("EnvCPPAge","10.1");
+    ret = setEnv("EnvCPPEnergy","10.1");
     EXPECT_EQ(ret, true);
 
     // parse
     Env e;
-
     env::Parse(e);
 
     EXPECT_EQ(e.EnvCPPName,EnvCPPName);
     EXPECT_EQ(e.EnvCPPAddress,EnvCPPAddress);
     EXPECT_EQ(e.EnvCPPAge,EnvCPPAge);
-   
-
-    // float is not working yet
-    // EXPECT_EQ(e.EnvCPPEnergy,EnvCPPEnergy);
+    EXPECT_EQ(e.EnvCPPHeight,EnvCPPHeight);
+    EXPECT_EQ(e.EnvCPPEnergy,EnvCPPEnergy);
 }
 
 }
