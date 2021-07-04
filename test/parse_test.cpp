@@ -22,32 +22,27 @@ REFL_END
 
 namespace mytest{
 
-bool setEnv(std::string const & key , std::string const & val){
-    int ret = setenv(key.c_str(),val.c_str(), true/*overwrite*/);
-    return ret == 0;
-}
-
-TEST(ParseTest, Ok) {
+TEST(Parse, Ok) {
     bool ret;
 
     std::string EnvCPPName = "EnvCPPNameVal";
-    ret = setEnv("EnvCPPName",EnvCPPName);
+    ret = env::SetEnvVar("EnvCPPName",EnvCPPName);
     EXPECT_EQ(ret, true);
 
     std::string EnvCPPAddress = "EnvCPPAddressVal";
-    ret = setEnv("EnvCPPAddress",EnvCPPAddress);
+    ret = env::SetEnvVar("EnvCPPAddress",EnvCPPAddress);
     EXPECT_EQ(ret, true);
 
     int EnvCPPAge = 10;
-    ret = setEnv("EnvCPPAge","10");
+    ret = env::SetEnvVar("EnvCPPAge","10");
     EXPECT_EQ(ret, true);
 
     long EnvCPPHeight = 20;
-    ret = setEnv("EnvCPPHeight","20");
+    ret = env::SetEnvVar("EnvCPPHeight","20");
     EXPECT_EQ(ret, true);
 
     float EnvCPPEnergy = 10.1;
-    ret = setEnv("EnvCPPEnergy","10.1");
+    ret = env::SetEnvVar("EnvCPPEnergy","10.1");
     EXPECT_EQ(ret, true);
 
     // parse
@@ -59,6 +54,15 @@ TEST(ParseTest, Ok) {
     EXPECT_EQ(e.EnvCPPAge,EnvCPPAge);
     EXPECT_EQ(e.EnvCPPHeight,EnvCPPHeight);
     EXPECT_EQ(e.EnvCPPEnergy,EnvCPPEnergy);
+}
+
+TEST(Parse, Exceptions) {
+    int ret;
+    ret = env::SetEnvVar("EnvCPPAge","bad-integer");
+    EXPECT_EQ(ret, true);
+
+    Env e;
+    EXPECT_THROW(env::Parse(e), env::ParseException);
 }
 
 }
