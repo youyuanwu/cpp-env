@@ -24,6 +24,11 @@ bool SetEnvVar(std::string const & key , std::string const & val){
     return ret == 0;
 }
 
+bool UnsetEnvVar(std::string const &key){
+    int ret = unsetenv(key.c_str());
+    return ret == 0;
+}
+
 // exceptions
 class ParseException: public std::exception{
 public:
@@ -46,10 +51,16 @@ public:
 // static assert for constexpr
 template<bool flag = false> void static_type_not_supported() { static_assert(flag, "type in user struct is not supported"); }
 
-struct name : refl::attr::usage::field
+struct Name : refl::attr::usage::field
 {
-    const char* m_name;
-    constexpr name(const char* name): m_name(name) {};
+    const char* m_val;
+    constexpr Name(const char* val): m_val(val) {};
+};
+
+struct Default : refl::attr::usage::field
+{
+    const char* m_val;
+    constexpr Default(const char* val): m_val(val) {};
 };
 
 template <typename T>
@@ -65,9 +76,9 @@ void Parse(T&& value)
             // By default use the struct field name.
             auto fieldName = get_display_name(member);
             // If name attr is present, use its name.
-            if constexpr (refl::descriptor::has_attribute<name>(member)){
-                auto attrName = refl::descriptor::get_attribute<name>(member);
-                fieldName = attrName.m_name;
+            if constexpr (refl::descriptor::has_attribute<Name>(member)){
+                constexpr auto attrName = refl::descriptor::get_attribute<Name>(member);
+                fieldName = attrName.m_val;
             }
 
             std::string val;
@@ -78,7 +89,13 @@ void Parse(T&& value)
             std::cout << "exist:" << exists << '\n';
 
             if (!exists){
-                return;
+                // Get default value
+                if constexpr (refl::descriptor::has_attribute<Default>(member)){
+                    constexpr auto attrDefault = refl::descriptor::get_attribute<Default>(member);
+                    val = attrDefault.m_val;
+                }else{
+                    return;
+                }
             }
 
             // macro to check if the member is of type "a"

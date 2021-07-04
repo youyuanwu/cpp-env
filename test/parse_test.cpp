@@ -31,7 +31,7 @@ struct Env2
 //     field(EnvString, env::name("EnvStringOverride"))
 // );
 REFL_TYPE(Env2)
-    REFL_FIELD(EnvString, env::name("EnvStringOverride"))
+    REFL_FIELD(EnvString, env::Name("EnvStringOverride"), env::Default("EnvStringDefaultValue"))
 REFL_END
 
 namespace mytest{
@@ -89,6 +89,17 @@ TEST(Parse, NameAttr) {
     env::Parse(e);
 
     EXPECT_EQ(e.EnvString, EnvStringOverride);
+}
+
+TEST(Parse, DefaultAttr) {
+    int ret;
+    ret = env::UnsetEnvVar("EnvStringOverride");
+    EXPECT_EQ(ret, true);
+
+    Env2 e;
+    env::Parse(e);
+
+    EXPECT_EQ(e.EnvString, std::string("EnvStringDefaultValue"));
 }
 
 }
