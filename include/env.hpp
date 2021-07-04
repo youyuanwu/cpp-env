@@ -46,8 +46,10 @@ public:
 // static assert for constexpr
 template<bool flag = false> void static_type_not_supported() { static_assert(flag, "type in user struct is not supported"); }
 
-struct serializable : refl::attr::usage::field
+struct name : refl::attr::usage::field
 {
+    const char* m_name;
+    constexpr name(const char* name): m_name(name) {};
 };
 
 template <typename T>
@@ -58,9 +60,16 @@ void Parse(T&& value)
     {
         // is_readable checks if the member is a non-const field
         // or a 0-arg const-qualified function marked with property attribute
-        if constexpr (is_readable(member) && is_writable(member) && refl::descriptor::has_attribute<serializable>(member))
+        if constexpr (is_readable(member) && is_writable(member))
         {
+            // By default use the struct field name.
             auto fieldName = get_display_name(member);
+            // If name attr is present, use its name.
+            if constexpr (refl::descriptor::has_attribute<name>(member)){
+                auto attrName = refl::descriptor::get_attribute<name>(member);
+                fieldName = attrName.m_name;
+            }
+
             std::string val;
             bool exists = GetEnvVar(fieldName, val);
 

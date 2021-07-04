@@ -13,11 +13,25 @@ struct Env
 
 // This needs to be in global namespace
 REFL_TYPE(Env, bases<>)
-    REFL_FIELD(EnvCPPName, env::serializable())
-    REFL_FIELD(EnvCPPAddress, env::serializable())
-    REFL_FIELD(EnvCPPAge, env::serializable())
-    REFL_FIELD(EnvCPPHeight, env::serializable())
-    REFL_FIELD(EnvCPPEnergy, env::serializable())
+    REFL_FIELD(EnvCPPName)
+    REFL_FIELD(EnvCPPAddress)
+    REFL_FIELD(EnvCPPAge)
+    REFL_FIELD(EnvCPPHeight)
+    REFL_FIELD(EnvCPPEnergy)
+REFL_END
+
+
+struct Env2
+{
+    std::string EnvString;
+};
+
+// REFL_AUTO(
+//     type(Env2),
+//     field(EnvString, env::name("EnvStringOverride"))
+// );
+REFL_TYPE(Env2)
+    REFL_FIELD(EnvString, env::name("EnvStringOverride"))
 REFL_END
 
 namespace mytest{
@@ -63,6 +77,18 @@ TEST(Parse, Exceptions) {
 
     Env e;
     EXPECT_THROW(env::Parse(e), env::ParseException);
+}
+
+TEST(Parse, NameAttr) {
+    int ret;
+    std::string EnvStringOverride = "EnvStringOverrideValue";
+    ret = env::SetEnvVar("EnvStringOverride", EnvStringOverride);
+    EXPECT_EQ(ret, true);
+
+    Env2 e;
+    env::Parse(e);
+
+    EXPECT_EQ(e.EnvString, EnvStringOverride);
 }
 
 }
