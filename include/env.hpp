@@ -46,7 +46,16 @@ public:
     }
 };
 
-
+class EnvNotFoundException: public std::exception{
+public:
+    std::string m_errStr;
+    EnvNotFoundException(std::string const &envName): m_errStr(){
+        m_errStr = "env var [" + envName + "] is not set";
+    };
+    const char* what() const noexcept override{
+        return m_errStr.c_str();
+    }
+};
 
 // static assert for constexpr
 template<bool flag = false> void static_type_not_supported() { static_assert(flag, "type in user struct is not supported"); }
@@ -62,6 +71,9 @@ struct Default : refl::attr::usage::field
     const char* m_val;
     constexpr Default(const char* val): m_val(val) {};
 };
+
+// Mark field as required.
+struct Required : refl::attr::usage::field {};
 
 template <typename T>
 void Parse(T&& value)
@@ -89,6 +101,12 @@ void Parse(T&& value)
             std::cout << "exist:" << exists << '\n';
 
             if (!exists){
+                // If it is required then we throw exception
+                if constexpr (refl::descriptor::has_attribute<Required>(member)){
+                    EnvNotFoundException ex(fieldName);
+                    throw ex;
+                }
+
                 // Get default value
                 if constexpr (refl::descriptor::has_attribute<Default>(member)){
                     constexpr auto attrDefault = refl::descriptor::get_attribute<Default>(member);
