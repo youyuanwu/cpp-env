@@ -11,9 +11,15 @@ FetchContent_MakeAvailable(googletest)
 
 project(env-cpp-tests CXX)
 
-add_executable(env-cpp-test parse_test.cpp)
+set(
+    tests
+    parse
+    example
+)
 
-target_link_libraries(env-cpp-test PRIVATE gtest_main env-cpp::env-cpp refl-cpp)
-target_compile_features(env-cpp-test PRIVATE cxx_std_17)
-
-add_test(NAME all_tests COMMAND env-cpp-test)
+foreach(test IN LISTS tests)
+  add_executable("${test}-test" "${test}-test.cpp")
+  target_link_libraries("${test}-test" PRIVATE gtest_main env-cpp::env-cpp refl-cpp)
+  target_compile_features("${test}-test" PRIVATE cxx_std_17)
+  add_test(NAME "${test}-test" COMMAND "${test}-test")
+endforeach()

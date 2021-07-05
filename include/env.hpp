@@ -1,3 +1,6 @@
+#ifndef ENV_INCLUDE_HPP
+#define ENV_INCLUDE_HPP
+
 #include <iostream>
 #include <cstdlib>
 #include <string>
@@ -145,3 +148,5 @@ void Parse(T&& value)
 }
 
 } // namespace env
+
+#endif // ENV_INCLUDE_HPP
