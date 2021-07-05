@@ -3,7 +3,7 @@
 #include "env.hpp"
 
 // Declare struct as usual
-struct Env
+struct ExampleEnv
 {
     std::string EnvCPPString1;
     std::string EnvCPPString2;
@@ -14,7 +14,7 @@ struct Env
 
 // Add struct meta data
 // This needs to be in global namespace, and is a limitation of refl-cpp pkg.
-REFL_TYPE(Env)
+REFL_TYPE(ExampleEnv)
     REFL_FIELD(EnvCPPString1, env::Name("EnvString1Override"))
     REFL_FIELD(EnvCPPString2, env::Default("EnvString2DefaultValue"))
     REFL_FIELD(EnvCPPInt, env::Required())
@@ -22,7 +22,7 @@ REFL_TYPE(Env)
     REFL_FIELD(EnvCPPFloat)
 REFL_END
 
-TEST(Parse, Ok) {
+TEST(ExampleParse, Ok) {
     bool ret;
 
     std::string EnvCPPString1 = "Override Value";
@@ -46,7 +46,7 @@ TEST(Parse, Ok) {
     EXPECT_EQ(ret, true);
 
     // Parse reads the Env struct meta-data and retrieves env values from OS
-    Env e;
+    ExampleEnv e;
     env::Parse(e);
 
     // Check Env e fields values are populated
