@@ -39,7 +39,7 @@ REFL_TYPE(Env3)
     REFL_FIELD(EnvString, env::Required())
 REFL_END
 
-namespace mytest{
+namespace envtest{
 
 TEST(Parse, Ok) {
     bool ret;
@@ -120,4 +120,34 @@ TEST(Parse, RequiredAttr) {
     env::Parse(e);
 }
 
+} // namespace envtest
+
+// Test custom type
+struct MyStruct{
+    int data;
+};
+
+struct MyStruct2{
+    MyStruct st;
+};
+
+REFL_TYPE(MyStruct2)
+    // data will not present in OS, but default value should be parsed.
+    // The env_convert should be invoked.
+    REFL_FIELD(st, env::Name("ComplexNameNoOneCares"), env::Default("dummy") )
+REFL_END
+
+inline void env_convert(std::string const & x, MyStruct &d){
+    d.data = 100;
 }
+
+namespace envtest{
+
+// custom type that can overload
+TEST(FunctionOverload, Ok){
+    MyStruct2 x;
+    env::Parse(x);
+    EXPECT_EQ(100, x.st.data);
+}
+
+} // namespace mytest
