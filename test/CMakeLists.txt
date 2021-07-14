@@ -18,8 +18,10 @@ set(
 )
 
 foreach(test IN LISTS tests)
-  add_executable("${test}-test" "${test}-test.cpp")
-  target_link_libraries("${test}-test" PRIVATE gtest_main env-cpp::env-cpp refl-cpp)
-  target_compile_features("${test}-test" PRIVATE cxx_std_17)
-  add_test(NAME "${test}-test" COMMAND "${test}-test")
+  list(APPEND testsources "${test}-test.hpp")
 endforeach()
+
+add_executable("env-cpp-all-tests" ${testsources} main-test.cpp)
+target_link_libraries("env-cpp-all-tests" PRIVATE gtest_main env-cpp::env-cpp refl-cpp)
+target_compile_features("env-cpp-all-tests" PRIVATE cxx_std_17)
+add_test(NAME "env-cpp-all-tests" COMMAND "env-cpp-all-tests")

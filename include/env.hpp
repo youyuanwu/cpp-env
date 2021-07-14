@@ -8,6 +8,39 @@
 
 namespace env {
 
+// contains string to primitive type conversion
+namespace convert{
+
+void env_convert(std::string const & data, std::string & ret){
+    ret = data;
+}
+
+void env_convert(std::string const & data, int & ret){
+    ret = std::stoi(data);
+}
+
+void env_convert(std::string const & data, long & ret){
+    ret = std::stol(data);
+}
+
+void env_convert(std::string const & data, long long & ret){
+    ret = std::stoll(data);
+}
+
+void env_convert(std::string const & data, float & ret){
+    ret = std::stof(data);
+}
+
+
+template <typename T>
+T Convert(std::string const & data){
+    T res{};
+    env_convert(data, res);
+    return res;
+}
+
+} // namespace convert
+
 // functions to handle envs with OS.
 
 // return true if exist
@@ -99,9 +132,9 @@ void Parse(T&& value)
             std::string val;
             bool exists = GetEnvVar(fieldName, val);
 
-            std::cout << "fieldName:" << fieldName << '\n';
-            std::cout << "val:" << val << '\n';
-            std::cout << "exist:" << exists << '\n';
+            // std::cout << "fieldName:" << fieldName << '\n';
+            // std::cout << "val:" << val << '\n';
+            // std::cout << "exist:" << exists << '\n';
 
             if (!exists){
                 // If it is required then we throw exception
@@ -119,25 +152,8 @@ void Parse(T&& value)
                 }
             }
 
-            // macro to check if the member is of type "a"
-            #define ENV_IS_TYPE_EQ(a) std::is_same<std::remove_reference_t<decltype(member(value))>, a>::value
-
-            try {
-                if constexpr (ENV_IS_TYPE_EQ(std::string)){
-                    // env is the same that we read
-                    member(value) = val;
-                } else if constexpr (ENV_IS_TYPE_EQ(int)){
-                    member(value) = std::stoi(val);
-                } else if constexpr (ENV_IS_TYPE_EQ(long)){
-                    member(value) = std::stol(val);
-                } else if constexpr (ENV_IS_TYPE_EQ(long long)){
-                    member(value) = std::stoll(val);
-                } else if constexpr (ENV_IS_TYPE_EQ(float)){
-                    member(value) = std::stof(val);
-                } else if constexpr (true){
-                    // If compiler error out on this line it means that user struct field type is not supported
-                    static_type_not_supported();
-                }
+            try{
+                member(value) = convert::Convert<std::remove_reference_t<decltype(member(value))>>(val);
             }catch (std::exception& e){
                 // TODO: include type of member in error message
                 ParseException pe(e,fieldName,val);
